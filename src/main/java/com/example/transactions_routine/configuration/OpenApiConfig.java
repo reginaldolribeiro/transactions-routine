@@ -27,7 +27,7 @@ public class OpenApiConfig {
                                 .url("https://github.com/reginaldolribeiro/transactions-routine/")))
                 .externalDocs(new ExternalDocumentation()
                         .description("Find more info about this API")
-                        .url("https://github.com/reginaldolribeirotransactions-routine/README.md"));
+                        .url("https://github.com/reginaldolribeiro/transactions-routine/blob/main/README.md"));
     }
 
 }
