@@ -33,7 +33,7 @@ For future improvements, it would be beneficial to apply the Hexagonal Architect
 ## How to Run the Project 💻
 
 ### Prerequisites ✅
-- **Docker** and **Docker Compose**
+- **Docker** and **Docker Compose**: [Install Docker](https://docs.docker.com/get-docker/)
 
 ### Quickest Way (Recommended) ⚡
 
@@ -85,8 +85,7 @@ If you prefer to run the application directly on your host machine, you can use 
 ### Accessing the API 🌐
 
 Once the application is running (using either method), you can access the API:
-- **Swagger UI**: `http://localhost:8080/transactions-api/swagger-ui.html`
-- **API Base**: `http://localhost:8080/transactions-api`
+- **Swagger UI**: [http://localhost:8080/transactions-api/swagger-ui.html](http://localhost:8080/transactions-api/swagger-ui.html)
 
 ### Test Data Available
 
@@ -112,9 +111,7 @@ The database includes seed data for quick API testing:
 The easiest way to explore and test the API is through Swagger UI:
 
 1. **Open Swagger UI** in your browser:
-   ```
-   http://localhost:8080/transactions-api/swagger-ui.html
-   ```
+   [http://localhost:8080/transactions-api/swagger-ui.html](http://localhost:8080/transactions-api/swagger-ui.html)
 
 2. **Test Account Endpoints**:
     - Find the `GET /v1/accounts/{id}` endpoint
@@ -202,7 +199,7 @@ curl -X GET http://localhost:8080/transactions-api/v1/transactions/1
 ### Language and Frameworks Used
 
 - **Java 21** - Latest LTS version
-- **Spring Boot** - Application framework and auto-configuration
+- **Spring Boot** - Java framework for building web applications.
 - **Spring Data JPA** - Data access layer with Hibernate
 - **Spring Validation** - Request validation
 - **Jackson** - JSON serialization/deserialization
