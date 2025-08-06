@@ -9,7 +9,6 @@
 #   up      - Starts the application and database. Builds the app image if it doesn't exist. (Default)
 #   down    - Stops and removes all services.
 #   build   - Forces a rebuild of the application's Docker image.
-#   test    - Runs the application's unit and integration tests in a container.
 #   logs    - Tails the logs from the application service.
 #   help    - Shows this help message.
 
@@ -64,13 +63,6 @@ function down() {
     print_info "Services stopped."
 }
 
-function test() {
-    print_info "Running tests in a dedicated container..."
-    # We run the tests in a one-off container based on the 'app' service definition.
-    # The `--rm` flag ensures the container is removed after the tests complete.
-    $COMPOSE_CMD -f $COMPOSE_FILE run --rm app ./mvnw test
-}
-
 function logs() {
     print_info "Following logs for the 'app' service..."
     $COMPOSE_CMD -f $COMPOSE_FILE logs -f app
@@ -97,9 +89,6 @@ function main() {
             ;;
         down)
             down
-            ;;
-        test)
-            test
             ;;
         logs)
             logs

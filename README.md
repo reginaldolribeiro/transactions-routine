@@ -51,13 +51,7 @@ This project is configured to run in a self-contained Docker environment. With t
     ```
     This command tails the application logs, which is useful for debugging and monitoring.
 
-3.  **Run Tests**:
-    ```bash
-    ./run.sh test
-    ```
-    This command will execute all unit and integration tests inside a Docker container, ensuring a consistent test environment.
-
-4.  **Stop the Application**:
+3.  **Stop the Application**:
     ```bash
     ./run.sh down
     ```
@@ -87,6 +81,19 @@ If you prefer to run the application directly on your host machine, you can use 
     ```bash
     ./mvnw spring-boot:run
     ```
+
+### How to Run Tests
+
+**Run All Tests**:
+```bash
+./mvnw test
+```
+
+**Run a Specific Test Class**:
+```bash
+# Replace 'AccountControllerTest' with the name of the test class you want to run
+./mvnw test -Dtest=AccountControllerTest
+```
 
 ### Accessing the API 🌐
 
@@ -221,17 +228,6 @@ curl -X GET http://localhost:8080/transactions-api/v1/transactions/1
 ```bash
 # Skip tests to create a build faster
 ./mvnw clean install -DskipTests
-```
-
-**Run All Tests**:
-```bash
-./mvnw test
-```
-
-**Run a Specific Test Class**:
-```bash
-# Replace 'AccountControllerTest' with the name of the test class you want to run
-./mvnw test -Dtest=AccountControllerTest
 ```
 
 **View Application Logs**:
