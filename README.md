@@ -97,7 +97,7 @@ The database includes seed data for quick API testing:
 
 **Operation Types:**
 1. Normal Purchase (ID: 1)
-2. Purchase with installments (ID: 2) 
+2. Purchase with installments (ID: 2)
 3. Withdrawal (ID: 3)
 4. Credit Voucher (ID: 4)
 
@@ -198,16 +198,16 @@ curl -X GET http://localhost:8080/transactions-api/v1/transactions/1
 
 ### Language and Frameworks Used
 
-- **Java 21** - Latest LTS version
-- **Spring Boot** - Java framework for building web applications.
-- **Spring Data JPA** - Data access layer with Hibernate
-- **Spring Validation** - Request validation
-- **Jackson** - JSON serialization/deserialization
-- **JUnit 5** - Unit and integration testing
-- **PostgreSQL** - Production database
-- **SpringDoc OpenAPI** - API documentation (Swagger)
-- **Flyway** - Database migration management
-- **Maven** - Build and dependency management
+- **[Java 21](https://openjdk.org/)** - Latest LTS version
+- **[Spring Boot](https://spring.io/projects/spring-boot)** - Java framework for building web applications.
+- **[Spring Data JPA](https://spring.io/projects/spring-data-jpa)** - Data access layer with Hibernate
+- **[Spring Validation](https://docs.spring.io/spring-framework/reference/core/validation.html)** - Request validation
+- **[Jackson](https://github.com/FasterXML/jackson)** - JSON serialization/deserialization
+- **[JUnit 5](https://junit.org/junit5/)** - Unit and integration testing
+- **[PostgreSQL](https://www.postgresql.org/)** - Production database
+- **[SpringDoc OpenAPI](https://springdoc.org/)** - API documentation (Swagger)
+- **[Flyway](https://flywaydb.org/)** - Database migration management
+- **[Maven](https://maven.apache.org/)** - Build and dependency management
 
 ### Additional Commands
 
@@ -232,5 +232,3 @@ docker compose down
 ```bash
 ./mvnw test -Dtest=AccountControllerTest
 ```
-
----
