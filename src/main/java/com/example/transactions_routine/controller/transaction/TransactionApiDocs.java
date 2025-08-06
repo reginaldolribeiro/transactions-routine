@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 @Tag(name = "Transactions", description = "Endpoints for creating and retrieving financial transactions.")
 public interface TransactionApiDocs {
@@ -50,7 +51,14 @@ public interface TransactionApiDocs {
                                     )
                             }))
     })
-    ResponseEntity<ApiResponse<TransactionResponse>> save(@Valid @RequestBody TransactionRequest transactionRequest);
+    ResponseEntity<ApiResponse<TransactionResponse>> save(
+            @Valid @RequestBody TransactionRequest transactionRequest,
+            @Parameter(
+                    description = "Unique identifier for idempotent transaction creation. Must be a valid UUID.",
+                    example = "a1b2c3d4-e5f6-7890-abcd-123456789001",
+                    required = true
+            ) @RequestHeader("Idempotency-Key") String idempotencyKey
+    );
 
     @Operation(
             summary = "Retrieve a transaction by ID",

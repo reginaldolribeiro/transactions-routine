@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Table(name = "transactions")
@@ -35,6 +36,9 @@ public class Transaction {
     @Column(nullable = false, name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(nullable = false, name = "idempotency_key")
+    private UUID idempotencyKey;
+
     // Package-private constructor for Hibernate/JPA
     Transaction() {
     }
@@ -48,6 +52,7 @@ public class Transaction {
         this.eventDate = builder.eventDate;
         this.createdAt = builder.createdAt;
         this.updatedAt = builder.updatedAt;
+        this.idempotencyKey = builder.idempotencyKey;
     }
 
     public static Builder builder() {
@@ -97,6 +102,10 @@ public class Transaction {
         return updatedAt;
     }
 
+    public UUID getIdempotencyKey() {
+        return idempotencyKey;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -119,6 +128,7 @@ public class Transaction {
         private LocalDateTime eventDate;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
+        private UUID idempotencyKey;
 
         private Builder() {
         }
@@ -155,6 +165,11 @@ public class Transaction {
 
         public Builder updatedAt(LocalDateTime updatedAt) {
             this.updatedAt = updatedAt;
+            return this;
+        }
+
+        public Builder idempotencyKey(UUID idempotencyKey) {
+            this.idempotencyKey = idempotencyKey;
             return this;
         }
 

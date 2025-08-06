@@ -53,7 +53,7 @@ class TransactionServiceTest {
         void shouldCreateTransactionWithPositiveAmountForCreditOperation() {
             // Given
             var transactionId = 1L;
-            var request = TransactionFixture.validTransactionRequest(mockAccountId,
+            var request = TransactionFixture.validTransactionInput(mockAccountId,
                     mockOperationTypeCredit.getId(),
                     TransactionFixture.SAMPLE_AMOUNT);
             var expectedTransaction = TransactionFixture.validTransaction(transactionId,
@@ -61,6 +61,7 @@ class TransactionServiceTest {
                     mockOperationTypeCredit.getId(),
                     TransactionFixture.SAMPLE_AMOUNT);
 
+            when(transactionRepository.countByAccountIdAndIdempotencyKey(mockAccountId, request.idempotencyKey())).thenReturn(0L);
             when(accountRepository.findById(mockAccountId)).thenReturn(Optional.of(mockAccount));
             when(operationTypeRepository.findById(mockOperationTypeCredit.getId())).thenReturn(Optional.of(mockOperationTypeCredit));
             when(transactionRepository.save(any(Transaction.class))).thenReturn(expectedTransaction);
@@ -87,7 +88,7 @@ class TransactionServiceTest {
         void shouldCreateTransactionWithNegativeAmountForDebitOperation() {
             // Given
             var transactionId = 2L;
-            var request = TransactionFixture.validTransactionRequest(mockAccountId,
+            var request = TransactionFixture.validTransactionInput(mockAccountId,
                     mockOperationTypeDebit.getId(),
                     TransactionFixture.SAMPLE_AMOUNT);
             var expectedTransaction = TransactionFixture.validTransaction(transactionId,
@@ -95,6 +96,7 @@ class TransactionServiceTest {
                     mockOperationTypeDebit.getId(),
                     TransactionFixture.SAMPLE_AMOUNT.negate());
 
+            when(transactionRepository.countByAccountIdAndIdempotencyKey(mockAccountId, request.idempotencyKey())).thenReturn(0L);
             when(accountRepository.findById(mockAccountId)).thenReturn(Optional.of(mockAccount));
             when(operationTypeRepository.findById(mockOperationTypeDebit.getId()))
                     .thenReturn(Optional.of(mockOperationTypeDebit));
@@ -118,13 +120,51 @@ class TransactionServiceTest {
         }
 
         @Test
-        @DisplayName("Given account does not exist, it should throw AccountNotFoundException")
-        void shouldThrowAccountNotFoundExceptionWhenAccountDoesNotExist() {
+        @DisplayName("Given a duplicate idempotency key exists, it should return the existing transaction")
+        void shouldReturnExistingTransactionWhenIdempotencyKeyAlreadyExists() {
             // Given
-            var request = TransactionFixture.validTransactionRequest(mockAccountId,
+            var existingTransactionId = 1L;
+            var request = TransactionFixture.validTransactionInput(mockAccountId,
+                    mockOperationTypeCredit.getId(),
+                    TransactionFixture.SAMPLE_AMOUNT);
+            var existingTransaction = TransactionFixture.validTransaction(existingTransactionId,
+                    mockAccountId,
                     mockOperationTypeCredit.getId(),
                     TransactionFixture.SAMPLE_AMOUNT);
 
+            when(transactionRepository.countByAccountIdAndIdempotencyKey(mockAccountId, request.idempotencyKey())).thenReturn(1L);
+            when(transactionRepository.findByAccountIdAndIdempotencyKey(mockAccountId, request.idempotencyKey()))
+                    .thenReturn(Optional.of(existingTransaction));
+
+            // When
+            var returnedTransaction = transactionService.createTransaction(request);
+
+            // Then
+            assertAll(
+                    () -> assertNotNull(returnedTransaction),
+                    () -> assertEquals(existingTransactionId, returnedTransaction.getId()),
+                    () -> assertEquals(mockAccountId, returnedTransaction.getAccount().getId()),
+                    () -> assertEquals(mockOperationTypeCredit.getId(), returnedTransaction.getOperationType().getId()),
+                    () -> assertEquals(TransactionFixture.SAMPLE_AMOUNT, returnedTransaction.getAmount())
+            );
+            
+            // Verify that no new transaction creation logic is executed
+            verify(accountRepository, never()).findById(anyLong());
+            verify(operationTypeRepository, never()).findById(anyLong());
+            verify(transactionRepository, never()).save(any(Transaction.class));
+            verify(transactionRepository, times(1)).countByAccountIdAndIdempotencyKey(mockAccountId, request.idempotencyKey());
+            verify(transactionRepository, times(1)).findByAccountIdAndIdempotencyKey(mockAccountId, request.idempotencyKey());
+        }
+
+        @Test
+        @DisplayName("Given account does not exist, it should throw AccountNotFoundException")
+        void shouldThrowAccountNotFoundExceptionWhenAccountDoesNotExist() {
+            // Given
+            var request = TransactionFixture.validTransactionInput(mockAccountId,
+                    mockOperationTypeCredit.getId(),
+                    TransactionFixture.SAMPLE_AMOUNT);
+
+            when(transactionRepository.countByAccountIdAndIdempotencyKey(mockAccountId, request.idempotencyKey())).thenReturn(0L);
             when(accountRepository.findById(mockAccountId)).thenReturn(Optional.empty());
 
             // When / Then
@@ -143,10 +183,11 @@ class TransactionServiceTest {
         @DisplayName("Given operation type does not exist, it should throw OperationTypeNotFoundException")
         void shouldThrowOperationTypeNotFoundExceptionWhenOperationTypeDoesNotExist() {
             // Given
-            var request = TransactionFixture.validTransactionRequest(mockAccountId,
+            var request = TransactionFixture.validTransactionInput(mockAccountId,
                     mockOperationTypeCredit.getId(),
                     TransactionFixture.SAMPLE_AMOUNT);
 
+            when(transactionRepository.countByAccountIdAndIdempotencyKey(mockAccountId, request.idempotencyKey())).thenReturn(0L);
             when(accountRepository.findById(mockAccountId)).thenReturn(Optional.of(mockAccount));
             when(operationTypeRepository.findById(mockOperationTypeCredit.getId())).thenReturn(Optional.empty());
 
@@ -160,6 +201,49 @@ class TransactionServiceTest {
             verify(accountRepository, times(1)).findById(mockAccountId);
             verify(operationTypeRepository, times(1)).findById(mockOperationTypeCredit.getId());
             verify(transactionRepository, never()).save(any(Transaction.class));
+        }
+
+        @Test
+        @DisplayName("Given same idempotency key for different accounts, it should create a new transaction")
+        void shouldCreateNewTransactionForSameIdempotencyKeyButDifferentAccount() {
+            // Given - Same idempotency key but different account ID
+            var differentAccountId = 2L;
+            var differentAccount = AccountFixture.validAccount(differentAccountId);
+            var transactionId = 3L;
+            var request = TransactionFixture.validTransactionInput(differentAccountId,
+                    mockOperationTypeCredit.getId(),
+                    TransactionFixture.SAMPLE_AMOUNT);
+            var expectedTransaction = TransactionFixture.validTransaction(transactionId,
+                    differentAccountId,
+                    mockOperationTypeCredit.getId(),
+                    TransactionFixture.SAMPLE_AMOUNT);
+
+            // Mock that no transaction exists for this account + idempotency key combination
+            when(transactionRepository.countByAccountIdAndIdempotencyKey(differentAccountId, request.idempotencyKey())).thenReturn(0L);
+            when(accountRepository.findById(differentAccountId)).thenReturn(Optional.of(differentAccount));
+            when(operationTypeRepository.findById(mockOperationTypeCredit.getId())).thenReturn(Optional.of(mockOperationTypeCredit));
+            when(transactionRepository.save(any(Transaction.class))).thenReturn(expectedTransaction);
+
+            // When
+            var createdTransaction = transactionService.createTransaction(request);
+
+            // Then
+            assertAll(
+                    () -> assertNotNull(createdTransaction),
+                    () -> assertEquals(transactionId, createdTransaction.getId()),
+                    () -> assertEquals(differentAccountId, createdTransaction.getAccount().getId()),
+                    () -> assertEquals(mockOperationTypeCredit.getId(), createdTransaction.getOperationType().getId()),
+                    () -> assertEquals(TransactionFixture.SAMPLE_AMOUNT, createdTransaction.getAmount()),
+                    () -> assertNotNull(createdTransaction.getEventDate())
+            );
+            
+            // Verify new transaction creation flow was executed
+            verify(transactionRepository, times(1)).countByAccountIdAndIdempotencyKey(differentAccountId, request.idempotencyKey());
+            verify(accountRepository, times(1)).findById(differentAccountId);
+            verify(operationTypeRepository, times(1)).findById(mockOperationTypeCredit.getId());
+            verify(transactionRepository, times(1)).save(any(Transaction.class));
+            // Verify we didn't try to fetch existing transaction
+            verify(transactionRepository, never()).findByAccountIdAndIdempotencyKey(anyLong(), any());
         }
     }
 }

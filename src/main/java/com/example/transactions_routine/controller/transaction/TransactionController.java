@@ -1,6 +1,7 @@
 package com.example.transactions_routine.controller.transaction;
 
 import com.example.transactions_routine.controller.ApiResponse;
+import com.example.transactions_routine.service.dto.TransactionInput;
 import com.example.transactions_routine.service.transaction.TransactionServicePort;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -8,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1/transactions")
@@ -22,8 +25,18 @@ public class TransactionController implements TransactionApiDocs{
 
     @Override
     @PostMapping
-    public ResponseEntity<ApiResponse<TransactionResponse>> save(@Valid @RequestBody TransactionRequest transactionRequest) {
-        var savedTransaction = transactionServicePort.createTransaction(transactionRequest);
+    public ResponseEntity<ApiResponse<TransactionResponse>> save(
+            @Valid @RequestBody TransactionRequest transactionRequest,
+            @RequestHeader("Idempotency-Key") String idempotencyKey) {
+        
+        var transactionInput = new TransactionInput(
+                transactionRequest.accountId(),
+                transactionRequest.operationTypeId(),
+                transactionRequest.amount(),
+                UUID.fromString(idempotencyKey)
+        );
+        
+        var savedTransaction = transactionServicePort.createTransaction(transactionInput);
         var transactionResponse = TransactionResponse.fromDomain(savedTransaction);
 
         var apiResponse = new ApiResponse<>(

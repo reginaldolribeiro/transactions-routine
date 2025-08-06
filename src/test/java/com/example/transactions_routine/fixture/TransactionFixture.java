@@ -4,9 +4,11 @@ import com.example.transactions_routine.controller.transaction.TransactionReques
 import com.example.transactions_routine.model.Account;
 import com.example.transactions_routine.model.OperationType;
 import com.example.transactions_routine.model.Transaction;
+import com.example.transactions_routine.service.dto.TransactionInput;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class TransactionFixture {
 
@@ -109,6 +111,19 @@ public class TransactionFixture {
                                                              Long operationTypeId,
                                                              BigDecimal amount) {
         return new TransactionRequest(accountId, operationTypeId, amount);
+    }
+
+    public static TransactionInput validTransactionInput(Long accountId,
+                                                         Long operationTypeId,
+                                                         BigDecimal amount,
+                                                         UUID idempotencyKey) {
+        return new TransactionInput(accountId, operationTypeId, amount, idempotencyKey);
+    }
+
+    public static TransactionInput validTransactionInput(Long accountId,
+                                                         Long operationTypeId,
+                                                         BigDecimal amount) {
+        return validTransactionInput(accountId, operationTypeId, amount, UUID.randomUUID());
     }
 
 }

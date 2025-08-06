@@ -2,6 +2,7 @@ package com.example.transactions_routine.controller.transaction;
 
 import com.example.transactions_routine.configuration.JacksonConfig;
 import com.example.transactions_routine.fixture.TransactionFixture;
+import com.example.transactions_routine.service.dto.TransactionInput;
 import com.example.transactions_routine.service.transaction.TransactionNotFoundException;
 import com.example.transactions_routine.service.transaction.TransactionServicePort;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,11 +48,13 @@ class TransactionControllerTest {
         void shouldCreateTransactionSuccessfully() throws Exception {
             var request = TransactionFixture.withValidPayload();
             var expectedTransaction = TransactionFixture.validTransaction();
+            var idempotencyKey = "a1b2c3d4-e5f6-7890-abcd-123456789001";
 
-            when(transactionServicePort.createTransaction(any(TransactionRequest.class))).thenReturn(expectedTransaction);
+            when(transactionServicePort.createTransaction(any(TransactionInput.class))).thenReturn(expectedTransaction);
 
             mockMvc.perform(post(TRANSACTION_URI)
                             .contentType(MediaType.APPLICATION_JSON)
+                            .header("Idempotency-Key", idempotencyKey)
                             .content(request)
                     )
                     .andExpect(status().isCreated())
@@ -63,7 +66,7 @@ class TransactionControllerTest {
                     .andExpect(jsonPath("$.data.operation_type_id").value(expectedTransaction.getOperationType().getId()))
                     .andExpect(jsonPath("$.data.amount").value(expectedTransaction.getAmount()));
 
-            verify(transactionServicePort, times(1)).createTransaction(any(TransactionRequest.class));
+            verify(transactionServicePort, times(1)).createTransaction(any(TransactionInput.class));
         }
 
         @Test
@@ -80,7 +83,7 @@ class TransactionControllerTest {
                     .andExpect(jsonPath("$.message").value("Malformed request"))
                     .andExpect(jsonPath("$.errors").exists());
 
-            verify(transactionServicePort, never()).createTransaction(any(TransactionRequest.class));
+            verify(transactionServicePort, never()).createTransaction(any(TransactionInput.class));
         }
 
         @Test
@@ -103,7 +106,7 @@ class TransactionControllerTest {
                     .andExpect(jsonPath("$.errors").exists())
                     .andExpect(jsonPath("$.errors.account_id").value("Account ID is required"));
 
-            verify(transactionServicePort, never()).createTransaction(any(TransactionRequest.class));
+            verify(transactionServicePort, never()).createTransaction(any(TransactionInput.class));
         }
 
         @Test
@@ -120,7 +123,7 @@ class TransactionControllerTest {
                     .andExpect(jsonPath("$.message").exists())
                     .andExpect(jsonPath("$.errors").exists());
 
-            verify(transactionServicePort, never()).createTransaction(any(TransactionRequest.class));
+            verify(transactionServicePort, never()).createTransaction(any(TransactionInput.class));
         }
 
         @Test
@@ -138,7 +141,7 @@ class TransactionControllerTest {
                     .andExpect(jsonPath("$.errors").exists())
                     .andExpect(jsonPath("$.errors.amount").value("Amount must be positive"));
 
-            verify(transactionServicePort, never()).createTransaction(any(TransactionRequest.class));
+            verify(transactionServicePort, never()).createTransaction(any(TransactionInput.class));
         }
 
         @Test
@@ -156,7 +159,35 @@ class TransactionControllerTest {
                     .andExpect(jsonPath("$.errors").exists())
                     .andExpect(jsonPath("$.errors.amount").value("Amount must be positive"));
 
-            verify(transactionServicePort, never()).createTransaction(any(TransactionRequest.class));
+            verify(transactionServicePort, never()).createTransaction(any(TransactionInput.class));
+        }
+
+        @Test
+        @DisplayName("Given a duplicate idempotency key, it should return the existing transaction with 201 Created")
+        void shouldReturnExistingTransactionForDuplicateIdempotencyKey() throws Exception {
+            var request = TransactionFixture.withValidPayload();
+            var existingTransaction = TransactionFixture.validTransaction();
+            var idempotencyKey = "a1b2c3d4-e5f6-7890-abcd-123456789001";
+
+            // Mock service to return existing transaction for duplicate idempotency key
+            when(transactionServicePort.createTransaction(any(TransactionInput.class))).thenReturn(existingTransaction);
+
+            mockMvc.perform(post(TRANSACTION_URI)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .header("Idempotency-Key", idempotencyKey)
+                            .content(request)
+                    )
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.status").value(HttpStatus.CREATED.value()))
+                    .andExpect(jsonPath("$.message").value("Transaction created successfully."))
+                    .andExpect(jsonPath("$.data").exists())
+                    .andExpect(jsonPath("$.data.id").value(existingTransaction.getId()))
+                    .andExpect(jsonPath("$.data.account_id").value(existingTransaction.getAccount().getId()))
+                    .andExpect(jsonPath("$.data.operation_type_id").value(existingTransaction.getOperationType().getId()))
+                    .andExpect(jsonPath("$.data.amount").value(existingTransaction.getAmount()))
+                    .andExpect(jsonPath("$.data.event_date").isNotEmpty());
+
+            verify(transactionServicePort, times(1)).createTransaction(any(TransactionInput.class));
         }
     }
 
