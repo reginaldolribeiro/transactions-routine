@@ -45,13 +45,19 @@ This project is configured to run in a self-contained Docker environment. With t
     ```
     This is the default command. It will build the app's Docker image, start the database and application containers, and then tail the application logs.
 
-2.  **Run Tests**:
+2.  **View Application Logs**:
+    ```bash
+    ./run.sh logs
+    ```
+    This command tails the application logs, which is useful for debugging and monitoring.
+
+3.  **Run Tests**:
     ```bash
     ./run.sh test
     ```
     This command will execute all unit and integration tests inside a Docker container, ensuring a consistent test environment.
 
-3.  **Stop the Application**:
+4.  **Stop the Application**:
     ```bash
     ./run.sh down
     ```
@@ -211,24 +217,53 @@ curl -X GET http://localhost:8080/transactions-api/v1/transactions/1
 
 ### Additional Commands
 
-**Run Tests**:
+**Build Without Running Tests**:
+```bash
+# Skip tests to create a build faster
+./mvnw clean install -DskipTests
+```
+
+**Run All Tests**:
 ```bash
 ./mvnw test
 ```
 
-**Stop Database**:
+**Run a Specific Test Class**:
 ```bash
-docker compose down
-```
-
-## How to Test 🧪
-
-### Run All Tests
-```bash
-./mvnw test
-```
-
-### Run Specific Test Classes
-```bash
+# Replace 'AccountControllerTest' with the name of the test class you want to run
 ./mvnw test -Dtest=AccountControllerTest
 ```
+
+**View Application Logs**:
+```bash
+# Follow the application logs in real-time
+docker compose logs -f app
+```
+
+**Access and Query the Database**:
+```bash
+# Open a psql shell to the database container
+docker compose exec db psql -U postgres -d transactions_db
+
+# Inside the psql shell, you can run these commands:
+
+# List all tables
+\dt
+
+# View accounts
+SELECT * FROM accounts;
+
+# View transactions
+SELECT * FROM transactions;
+
+# Exit the shell
+\q
+```
+
+**Stop the Database and Remove Volumes**:
+```bash
+# Warning: This command will stop the database container and permanently delete its data volume.
+docker compose down --volumes
+```
+
+---
