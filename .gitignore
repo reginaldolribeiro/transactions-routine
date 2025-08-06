@@ -1,0 +1,172 @@
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+# Ignore Gemini/AI instruction files
+.gemini.md
+*.gemini.md
+*.gpt.md
+*.ai.md
+
+### Database ###
+# H2 Database
+*.db
+*.h2.db
+*.mv.db
+*.trace.db
+
+# PostgreSQL
+*.sql.backup
+*.dump
+
+### Logs ###
+log/
+logs/
+*.log
+*.log.*
+*.out
+
+### Environment Variables ###
+.env
+.env.local
+.env.*.local
+
+### Application Properties ###
+# Don't ignore the template, but ignore local overrides
+application-local.properties
+application-dev.properties
+application-*.yml
+!application.yml
+!application.properties
+!application-example.yml
+!application-template.yml
+
+### Docker ###
+# Don't ignore docker-compose.yaml, but ignore overrides
+docker-compose.override.yml
+docker-compose.*.yml
+!docker-compose.yaml
+!docker-compose.yml
+
+### Security ###
+# JWT keys and certificates
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+*.keystore
+*.truststore
+
+### Temporary Files ###
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+### Test Coverage ###
+.jacoco/
+jacoco.exec
+target/site/jacoco/
+
+### Maven ###
+# Already covered target/, but add specific patterns
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+.mvn/timing.properties
+# Keep maven-wrapper.properties for consistent builds
+!.mvn/wrapper/maven-wrapper.properties
+
+### Gradle (if you switch later) ###
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+
+### Node.js (for frontend integration) ###
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+### Documentation ###
+# Keep main docs, but ignore generated ones
+/docs/build/
+/docs/.vuepress/dist/
+# Exclude docs folder
+docs/
+
+### IDE and Editor specific ###
+# Vim
+*.swp
+*.swo
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+### Operating System ###
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.Trash-*
+.nfs*
