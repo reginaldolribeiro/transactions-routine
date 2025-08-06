@@ -1,11 +1,11 @@
 # Transactions API
 
-## Description
+## Description 📝
 A REST API to manage accounts and transactions for financial operations.
 
 ## Approach
 
-### Architecture
+### Architecture 🏛️
 The application is developed with a clean, layered architecture designed to be simple for an MVP while being extensible for future enhancements. The architecture follows these layers:
 
 - **Controller Layer**: Handles HTTP requests and responses, input validation
@@ -20,7 +20,7 @@ For future improvements, it would be beneficial to apply the Hexagonal Architect
 - **Clear Port Definitions**: Formalize interfaces (ports) for external dependencies (e.g., repositories, external services) and implement them through infrastructure-specific adapters.
 
 
-## Endpoints
+## Endpoints 🚀
 
 ### Accounts
 - **`POST /v1/accounts`**: Create a new account
@@ -30,12 +30,12 @@ For future improvements, it would be beneficial to apply the Hexagonal Architect
 - **`POST /v1/transactions`**: Create a new transaction with types such as Normal Purchase, Purchase with Installments, Withdrawal, and Credit Voucher
 - **`GET /v1/transactions/{id}`**: Retrieve transaction details by ID
 
-## How to Run the Project
+## How to Run the Project 💻
 
-### Prerequisites
+### Prerequisites ✅
 - **Docker** and **Docker Compose**
 
-### Quickest Way (Recommended)
+### Quickest Way (Recommended) ⚡
 
 This project is configured to run in a self-contained Docker environment. With the provided script, you can build, test, and run the application with simple commands.
 
@@ -82,7 +82,7 @@ If you prefer to run the application directly on your host machine, you can use 
     ./mvnw spring-boot:run
     ```
 
-### Accessing the API
+### Accessing the API 🌐
 
 Once the application is running (using either method), you can access the API:
 - **Swagger UI**: `http://localhost:8080/transactions-api/swagger-ui.html`
@@ -107,7 +107,7 @@ The database includes seed data for quick API testing:
 
 ## Try the API
 
-### Quick Start with Swagger UI
+### Quick Start with Swagger UI 🚀
 
 The easiest way to explore and test the API is through Swagger UI:
 
@@ -195,11 +195,9 @@ curl -X GET http://localhost:8080/transactions-api/v1/transactions/1
    curl -X GET http://localhost:8080/transactions-api/v1/transactions/1
    ```
 
-### API Documentation
-- **Swagger UI**: Available at `http://localhost:8080/transactions-api/swagger-ui.html`
-- **OpenAPI Docs**: Available at `http://localhost:8080/transactions-api/v3/api-docs`
 
-## Technical Details
+
+## Technical Details 🛠️
 
 ### Language and Frameworks Used
 
@@ -226,7 +224,7 @@ curl -X GET http://localhost:8080/transactions-api/v1/transactions/1
 docker compose down
 ```
 
-## How to Test
+## How to Test 🧪
 
 ### Run All Tests
 ```bash
