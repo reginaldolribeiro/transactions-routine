@@ -39,6 +39,10 @@ public class OperationType {
         this.updatedAt = builder.updatedAt;
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @PrePersist
     protected void onCreate() {
         var now = LocalDateTime.now();
@@ -76,20 +80,12 @@ public class OperationType {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OperationType that = (OperationType) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(description, that.description) &&
-                Objects.equals(credit, that.credit) &&
-                Objects.equals(createdAt, that.createdAt) &&
-                Objects.equals(updatedAt, that.updatedAt);
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, description, credit, createdAt, updatedAt);
-    }
-
-    public static Builder builder() {
-        return new Builder();
+        return Objects.hash(id);
     }
 
     public static final class Builder {
@@ -102,28 +98,28 @@ public class OperationType {
         private Builder() {
         }
 
-        public Builder id(Long val) {
-            id = val;
+        public Builder id(Long id) {
+            this.id = id;
             return this;
         }
 
-        public Builder description(String val) {
-            description = val;
+        public Builder description(String description) {
+            this.description = description;
             return this;
         }
 
-        public Builder credit(boolean val) {
-            credit = val;
+        public Builder credit(boolean credit) {
+            this.credit = credit;
             return this;
         }
 
-        public Builder createdAt(LocalDateTime val) {
-            createdAt = val;
+        public Builder createdAt(LocalDateTime createdAt) {
+            this.createdAt = createdAt;
             return this;
         }
 
-        public Builder updatedAt(LocalDateTime val) {
-            updatedAt = val;
+        public Builder updatedAt(LocalDateTime updatedAt) {
+            this.updatedAt = updatedAt;
             return this;
         }
 

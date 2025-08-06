@@ -83,7 +83,7 @@ public class GlobalExceptionHandler {
         }
 
         var generic = new ApiErrorResponse(HttpStatus.BAD_REQUEST.value(),
-                "Invalid parameter " + ex.getName() + ". " + ex.getName());
+                "Invalid parameter " + ex.getName());
         return ResponseEntity.badRequest().body(generic);
     }
 

@@ -41,6 +41,7 @@ public class TransactionController implements TransactionApiDocs{
         return ResponseEntity.created(location).body(apiResponse);
     }
 
+    @Override
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<TransactionResponse>> findById(@PathVariable Long id) {
         var transaction = transactionServicePort.findById(id);

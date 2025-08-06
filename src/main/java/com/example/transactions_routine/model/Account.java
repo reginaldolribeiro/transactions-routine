@@ -36,6 +36,10 @@ public class Account {
         this.updatedAt = builder.updatedAt;
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @PrePersist
     protected void onCreate(){
         var now = LocalDateTime.now();
@@ -69,18 +73,13 @@ public class Account {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Account account = (Account) o;
-        return Objects.equals(id, account.id) && Objects.equals(documentNumber, account.documentNumber) && Objects.equals(createdAt, account.createdAt) && Objects.equals(updatedAt, account.updatedAt);
+        return Objects.equals(id, account.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, documentNumber, createdAt, updatedAt);
+        return Objects.hash(id);
     }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
 
     public static final class Builder {
         private Long id;
@@ -91,23 +90,23 @@ public class Account {
         private Builder() {
         }
 
-        public Builder id(Long val) {
-            id = val;
+        public Builder id(Long id) {
+            this.id = id;
             return this;
         }
 
-        public Builder documentNumber(String val) {
-            documentNumber = val;
+        public Builder documentNumber(String documentNumber) {
+            this.documentNumber = documentNumber;
             return this;
         }
 
-        public Builder createdAt(LocalDateTime val) {
-            createdAt = val;
+        public Builder createdAt(LocalDateTime createdAt) {
+            this.createdAt = createdAt;
             return this;
         }
 
-        public Builder updatedAt(LocalDateTime val) {
-            updatedAt = val;
+        public Builder updatedAt(LocalDateTime updatedAt) {
+            this.updatedAt = updatedAt;
             return this;
         }
 

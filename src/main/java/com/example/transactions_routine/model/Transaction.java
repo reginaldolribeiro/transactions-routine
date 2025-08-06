@@ -41,13 +41,17 @@ public class Transaction {
 
     // Private constructor for builder pattern - forces use of builder
     private Transaction(Builder builder) {
-        this.id = builder.transactionId;
-        this.account = builder.accountId;
-        this.operationType = builder.operationTypeId;
+        this.id = builder.id;
+        this.account = builder.account;
+        this.operationType = builder.operationType;
         this.amount = builder.amount;
         this.eventDate = builder.eventDate;
         this.createdAt = builder.createdAt;
         this.updatedAt = builder.updatedAt;
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     @PrePersist
@@ -98,28 +102,19 @@ public class Transaction {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Transaction that = (Transaction) o;
-        return Objects.equals(id, that.id) &&
-               Objects.equals(account, that.account) &&
-               Objects.equals(operationType, that.operationType) &&
-               Objects.equals(amount, that.amount) &&
-               Objects.equals(eventDate, that.eventDate) &&
-               Objects.equals(createdAt, that.createdAt) &&
-               Objects.equals(updatedAt, that.updatedAt);
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, account, operationType, amount, eventDate, createdAt, updatedAt);
+        return Objects.hash(id);
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
 
     public static final class Builder {
-        private Long transactionId;
-        private Account accountId;
-        private OperationType operationTypeId;
+        private Long id;
+        private Account account;
+        private OperationType operationType;
         private BigDecimal amount;
         private LocalDateTime eventDate;
         private LocalDateTime createdAt;
@@ -128,38 +123,38 @@ public class Transaction {
         private Builder() {
         }
 
-        public Builder transactionId(Long val) {
-            transactionId = val;
+        public Builder id(Long id) {
+            this.id = id;
             return this;
         }
 
-        public Builder account(Account val) {
-            accountId = val;
+        public Builder account(Account account) {
+            this.account = account;
             return this;
         }
 
-        public Builder operationTypeId(OperationType val) {
-            operationTypeId = val;
+        public Builder operationType(OperationType operationType) {
+            this.operationType = operationType;
             return this;
         }
 
-        public Builder amount(BigDecimal val) {
-            amount = val;
+        public Builder amount(BigDecimal amount) {
+            this.amount = amount;
             return this;
         }
 
-        public Builder eventDate(LocalDateTime val) {
-            eventDate = val;
+        public Builder eventDate(LocalDateTime eventDate) {
+            this.eventDate = eventDate;
             return this;
         }
 
-        public Builder createdAt(LocalDateTime val) {
-            createdAt = val;
+        public Builder createdAt(LocalDateTime createdAt) {
+            this.createdAt = createdAt;
             return this;
         }
 
-        public Builder updatedAt(LocalDateTime val) {
-            updatedAt = val;
+        public Builder updatedAt(LocalDateTime updatedAt) {
+            this.updatedAt = updatedAt;
             return this;
         }
 

@@ -43,7 +43,7 @@ public class TransactionService implements TransactionServicePort {
 
         var transaction = Transaction.builder()
                 .account(account)
-                .operationTypeId(operationType)
+                .operationType(operationType)
                 .amount(amount)
                 .eventDate(LocalDateTime.now())
                 .build();

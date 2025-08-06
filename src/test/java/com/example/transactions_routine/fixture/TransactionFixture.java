@@ -88,9 +88,9 @@ public class TransactionFixture {
                 .build();
 
         return Transaction.builder()
-                .transactionId(transactionId)
+                .id(transactionId)
                 .account(account)
-                .operationTypeId(operationType)
+                .operationType(operationType)
                 .amount(amount)
                 .eventDate(FIXED_TIMESTAMP)
                 .createdAt(FIXED_TIMESTAMP)
