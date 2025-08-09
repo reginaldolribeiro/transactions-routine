@@ -8,6 +8,7 @@ import com.example.transactions_routine.model.Transaction;
 import com.example.transactions_routine.repository.AccountRepository;
 import com.example.transactions_routine.repository.OperationTypeRepository;
 import com.example.transactions_routine.repository.TransactionRepository;
+import com.example.transactions_routine.service.transaction.InsufficientFundsException;
 import com.example.transactions_routine.service.transaction.OperationTypeNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -67,29 +68,53 @@ public class AccountService implements AccountServicePort {
         var destinationAccount = findById(transferRequest.destinationAccountId());
         var transferTime = LocalDateTime.now();
 
+        // Process debit and credit transactions using private methods
+        var debitTransaction = processDebitTransaction(sourceAccount, transferRequest.amount(), transferTime);
+        var creditTransaction = processCreditTransaction(destinationAccount, transferRequest.amount(), transferTime);
+
+        // Save both transactions
+        transactionRepository.saveAll(List.of(debitTransaction, creditTransaction));
+
+        return new TransferResult(transferTime, debitTransaction, creditTransaction);
+    }
+
+    private Transaction processDebitTransaction(Account sourceAccount, BigDecimal amount, LocalDateTime transferTime) {
         var debitOperationType = operationTypeRepository.findByDescription("TRANSFER_OUT")
                 .orElseThrow(() -> new OperationTypeNotFoundException("Operation type not found with description: TRANSFER_OUT"));
-        
-        var creditOperationType = operationTypeRepository.findByDescription("TRANSFER_IN")
-                .orElseThrow(() -> new OperationTypeNotFoundException("Operation type not found with description: TRANSFER_IN"));
 
         var debitTransaction = Transaction.builder()
                 .account(sourceAccount)
                 .operationType(debitOperationType)
-                .amount(transferRequest.amount().negate())
+                .amount(amount.negate())
                 .eventDate(transferTime)
                 .build();
+
+        // Check insufficient funds - this can fail and trigger rollback
+        int debitUpdated = accountRepository.updateBalanceWithCheck(sourceAccount.getId(), debitTransaction.getAmount());
+        if (debitUpdated == 0) {
+            throw new InsufficientFundsException(
+                    String.format("Insufficient funds for transaction. Account ID: %d, Requested amount: %s",
+                            sourceAccount.getId(), amount));
+        }
+
+        return debitTransaction;
+    }
+
+    private Transaction processCreditTransaction(Account destinationAccount, BigDecimal amount, LocalDateTime transferTime) {
+        var creditOperationType = operationTypeRepository.findByDescription("TRANSFER_IN")
+                .orElseThrow(() -> new OperationTypeNotFoundException("Operation type not found with description: TRANSFER_IN"));
 
         var creditTransaction = Transaction.builder()
                 .account(destinationAccount)
                 .operationType(creditOperationType)
-                .amount(transferRequest.amount())
+                .amount(amount)
                 .eventDate(transferTime)
                 .build();
 
-        transactionRepository.saveAll(List.of(debitTransaction, creditTransaction));
+        // Update destination balance - this should always succeed for credits
+        accountRepository.updateBalance(destinationAccount.getId(), creditTransaction.getAmount());
 
-        return new TransferResult(transferTime, debitTransaction, creditTransaction);
+        return creditTransaction;
     }
 
     private void validateTransferRequest(Long sourceAccountId, Long destinationAccountId, BigDecimal amount) {
@@ -103,4 +128,5 @@ public class AccountService implements AccountServicePort {
             throw new InvalidTransferAmountException("Transfer amount must be positive");
         }
     }
+
 }

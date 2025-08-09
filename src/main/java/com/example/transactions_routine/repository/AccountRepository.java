@@ -27,8 +27,18 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
                    SET a.balance   = a.balance + :amount,
                        a.updatedAt = CURRENT_TIMESTAMP
                  WHERE a.id        = :accountId
-                   AND a.balance + :amount >= 0
             """)
     int updateBalance(Long accountId, BigDecimal amount);
+
+    @Modifying
+    @Query("""
+                UPDATE Account a
+                   SET a.balance   = a.balance + :amount,
+                       a.updatedAt = CURRENT_TIMESTAMP
+                 WHERE a.id        = :accountId
+                   AND a.balance + :amount >= 0
+            """)
+    int updateBalanceWithCheck(Long accountId, BigDecimal amount);
+
 
 }

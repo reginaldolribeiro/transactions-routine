@@ -63,7 +63,7 @@ class TransactionServiceTest {
 
             when(accountRepository.findById(mockAccountId)).thenReturn(Optional.of(mockAccount));
             when(operationTypeRepository.findById(mockOperationTypeCredit.getId())).thenReturn(Optional.of(mockOperationTypeCredit));
-            when(accountRepository.updateBalance(mockAccountId, request.amount())).thenReturn(1);
+            when(accountRepository.updateBalanceWithCheck(mockAccountId, request.amount())).thenReturn(1);
             when(transactionRepository.save(any(Transaction.class))).thenReturn(expectedTransaction);
 
             // When
@@ -99,7 +99,7 @@ class TransactionServiceTest {
             when(accountRepository.findById(mockAccountId)).thenReturn(Optional.of(mockAccount));
             when(operationTypeRepository.findById(mockOperationTypeDebit.getId()))
                     .thenReturn(Optional.of(mockOperationTypeDebit));
-            when(accountRepository.updateBalance(mockAccountId, request.amount().negate())).thenReturn(1);
+            when(accountRepository.updateBalanceWithCheck(mockAccountId, request.amount().negate())).thenReturn(1);
             when(transactionRepository.save(any(Transaction.class))).thenReturn(expectedTransaction);
 
             // When
@@ -161,6 +161,33 @@ class TransactionServiceTest {
 
             verify(accountRepository, times(1)).findById(mockAccountId);
             verify(operationTypeRepository, times(1)).findById(mockOperationTypeCredit.getId());
+            verify(transactionRepository, never()).save(any(Transaction.class));
+        }
+
+        @Test
+        @DisplayName("Given a debit transaction with insufficient funds, it should throw InsufficientFundsException")
+        void shouldThrowInsufficientFundsExceptionWhenBalanceIsNegative() {
+            // Given
+            var request = TransactionFixture.validTransactionRequest(mockAccountId,
+                    mockOperationTypeDebit.getId(),
+                    TransactionFixture.SAMPLE_AMOUNT);
+            var amountToDebit = request.amount().negate();
+
+            when(accountRepository.findById(mockAccountId)).thenReturn(Optional.of(mockAccount));
+            when(operationTypeRepository.findById(mockOperationTypeDebit.getId())).thenReturn(Optional.of(mockOperationTypeDebit));
+            when(accountRepository.updateBalanceWithCheck(mockAccountId, amountToDebit)).thenReturn(0);
+
+            // When / Then
+            var thrown = assertThrows(InsufficientFundsException.class, () -> {
+                transactionService.createTransaction(request);
+            });
+
+            assertEquals(String.format("Insufficient funds for transaction. Account ID: %d, Requested amount: %s",
+                    mockAccountId, amountToDebit), thrown.getMessage());
+
+            verify(accountRepository, times(1)).findById(mockAccountId);
+            verify(operationTypeRepository, times(1)).findById(mockOperationTypeDebit.getId());
+            verify(accountRepository, times(1)).updateBalanceWithCheck(mockAccountId, amountToDebit);
             verify(transactionRepository, never()).save(any(Transaction.class));
         }
     }

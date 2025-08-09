@@ -49,7 +49,7 @@ public class TransactionService implements TransactionServicePort {
                 : transactionRequest.amount().negate();
 
         // Atomically update account balance with insufficient funds protection
-        int updatedRows = accountRepository.updateBalance(account.getId(), amount);
+        int updatedRows = accountRepository.updateBalanceWithCheck(account.getId(), amount);
         if (updatedRows == 0) {
             throw new InsufficientFundsException(
                     String.format("Insufficient funds for transaction. Account ID: %d, Requested amount: %s",
