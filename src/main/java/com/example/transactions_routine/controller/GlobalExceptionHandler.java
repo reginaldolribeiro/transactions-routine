@@ -2,6 +2,10 @@ package com.example.transactions_routine.controller;
 
 import com.example.transactions_routine.service.account.AccountDocumentAlreadyExistsException;
 import com.example.transactions_routine.service.account.AccountNotFoundException;
+import com.example.transactions_routine.service.account.InvalidAccountIdException;
+import com.example.transactions_routine.service.account.InvalidTransferAmountException;
+import com.example.transactions_routine.service.account.SameAccountTransferException;
+import com.example.transactions_routine.service.transaction.InsufficientFundsException;
 import com.example.transactions_routine.service.transaction.OperationTypeNotFoundException;
 import com.example.transactions_routine.service.transaction.TransactionNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -58,6 +62,34 @@ public class GlobalExceptionHandler {
         logger.warn("OperationTypeNotFoundException: {}", ex.getMessage());
         var errorResponse = new ApiErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(InvalidTransferAmountException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidTransferAmountException(InvalidTransferAmountException ex) {
+        logger.warn("InvalidTransferAmountException: {}", ex.getMessage());
+        var errorResponse = new ApiErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
+
+    @ExceptionHandler(SameAccountTransferException.class)
+    public ResponseEntity<ApiErrorResponse> handleSameAccountTransferException(SameAccountTransferException ex) {
+        logger.warn("SameAccountTransferException: {}", ex.getMessage());
+        var errorResponse = new ApiErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
+
+    @ExceptionHandler(InvalidAccountIdException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidAccountIdException(InvalidAccountIdException ex) {
+        logger.warn("InvalidAccountIdException: {}", ex.getMessage());
+        var errorResponse = new ApiErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
+
+    @ExceptionHandler(InsufficientFundsException.class)
+    public ResponseEntity<ApiErrorResponse> handleInsufficientFundsException(InsufficientFundsException ex) {
+        logger.warn("InsufficientFundsException: {}", ex.getMessage());
+        var errorResponse = new ApiErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

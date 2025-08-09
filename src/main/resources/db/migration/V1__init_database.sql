@@ -1,6 +1,7 @@
 CREATE TABLE accounts (
     id BIGSERIAL PRIMARY KEY,
     document_number VARCHAR(255) NOT NULL UNIQUE,
+    balance DECIMAL(10, 2) NOT NULL DEFAULT 0,
     created_at TIMESTAMP,
     updated_at TIMESTAMP
 );
@@ -30,14 +31,16 @@ CREATE INDEX idx_transactions_operation_type_id ON transactions(operation_type_i
 CREATE INDEX idx_transactions_account_event_date ON transactions(account_id, event_date);
 
 -- initial data
-INSERT INTO accounts (document_number, created_at, updated_at) VALUES
-('12345678900', '2020-01-01T08:00:00.0000000', '2020-01-01T08:00:00.0000000');
+INSERT INTO accounts (document_number, balance, created_at, updated_at) VALUES
+('12345678900', '0', '2020-01-01T08:00:00.0000000', '2020-01-01T08:00:00.0000000');
 
 INSERT INTO operation_types (description, credit, created_at, updated_at) VALUES
 ('Normal Purchase', FALSE, '2020-01-01T08:00:00.0000000', '2020-01-01T08:00:00.0000000'),
 ('Purchase with installments', FALSE, '2020-01-01T08:00:00.0000000', '2020-01-01T08:00:00.0000000'),
 ('Withdrawal', FALSE, '2020-01-01T08:00:00.0000000', '2020-01-01T08:00:00.0000000'),
-('Credit Voucher', TRUE, '2020-01-01T08:00:00.0000000', '2020-01-01T08:00:00.0000000');
+('Credit Voucher', TRUE, '2020-01-01T08:00:00.0000000', '2020-01-01T08:00:00.0000000'),
+('TRANSFER_IN', TRUE, '2020-01-01T08:00:00.0000000', '2020-01-01T08:00:00.0000000'),
+('TRANSFER_OUT', FALSE, '2020-01-01T08:00:00.0000000', '2020-01-01T08:00:00.0000000');
 
 INSERT INTO transactions (account_id, operation_type_id, amount, event_date, created_at, updated_at) VALUES
 (1, 1, -50.0, '2020-01-01T10:32:07.7199222', '2020-01-01T10:32:07.7199222', '2020-01-01T10:32:07.7199222'),

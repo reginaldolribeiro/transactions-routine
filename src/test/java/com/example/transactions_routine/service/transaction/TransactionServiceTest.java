@@ -63,6 +63,7 @@ class TransactionServiceTest {
 
             when(accountRepository.findById(mockAccountId)).thenReturn(Optional.of(mockAccount));
             when(operationTypeRepository.findById(mockOperationTypeCredit.getId())).thenReturn(Optional.of(mockOperationTypeCredit));
+            when(accountRepository.updateBalance(mockAccountId, request.amount())).thenReturn(1);
             when(transactionRepository.save(any(Transaction.class))).thenReturn(expectedTransaction);
 
             // When
@@ -98,6 +99,7 @@ class TransactionServiceTest {
             when(accountRepository.findById(mockAccountId)).thenReturn(Optional.of(mockAccount));
             when(operationTypeRepository.findById(mockOperationTypeDebit.getId()))
                     .thenReturn(Optional.of(mockOperationTypeDebit));
+            when(accountRepository.updateBalance(mockAccountId, request.amount().negate())).thenReturn(1);
             when(transactionRepository.save(any(Transaction.class))).thenReturn(expectedTransaction);
 
             // When

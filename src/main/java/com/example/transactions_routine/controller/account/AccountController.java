@@ -1,6 +1,7 @@
 package com.example.transactions_routine.controller.account;
 
 import com.example.transactions_routine.controller.ApiResponse;
+import com.example.transactions_routine.controller.transaction.TransactionResponse;
 import com.example.transactions_routine.service.account.AccountServicePort;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -54,4 +55,23 @@ public class AccountController implements AccountApiDocs {
         );
         return ResponseEntity.ok(apiResponse);
     }
-}
+
+    @PostMapping("/transfers")
+    public ResponseEntity<ApiResponse<TransferResponse>> transfer(@Valid @RequestBody TransferRequest transferRequest) {
+        var transferResult = accountServicePort.transfer(transferRequest);
+
+        var transferResponse = new TransferResponse(transferResult.transferDate(),
+                TransactionResponse.fromDomain(transferResult.debitTransaction()),
+                TransactionResponse.fromDomain(transferResult.creditTransaction()));
+
+        var apiResponse = new ApiResponse<>(
+                HttpStatus.CREATED.value(),
+                "Account created successfully.",
+                transferResponse,
+                null
+        );
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    }

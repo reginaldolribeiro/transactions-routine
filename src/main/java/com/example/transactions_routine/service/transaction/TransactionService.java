@@ -6,6 +6,8 @@ import com.example.transactions_routine.repository.AccountRepository;
 import com.example.transactions_routine.repository.OperationTypeRepository;
 import com.example.transactions_routine.repository.TransactionRepository;
 import com.example.transactions_routine.service.account.AccountNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +16,8 @@ import java.time.LocalDateTime;
 @Service
 @Transactional(readOnly = true)
 public class TransactionService implements TransactionServicePort {
+
+    private static final Logger logger = LoggerFactory.getLogger(TransactionService.class);
 
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
@@ -30,6 +34,9 @@ public class TransactionService implements TransactionServicePort {
     @Override
     @Transactional
     public Transaction createTransaction(TransactionRequest transactionRequest) {
+        logger.info("Creating transaction for account: {}, operation type: {}, amount: {}",
+                transactionRequest.accountId(), transactionRequest.operationTypeId(), transactionRequest.amount());
+
         var account = accountRepository.findById(transactionRequest.accountId())
                 .orElseThrow(() -> new AccountNotFoundException("Account not found with id: " + transactionRequest.accountId()));
 
@@ -40,6 +47,14 @@ public class TransactionService implements TransactionServicePort {
         var amount = operationType.isCredit()
                 ? transactionRequest.amount()
                 : transactionRequest.amount().negate();
+
+        // Atomically update account balance with insufficient funds protection
+        int updatedRows = accountRepository.updateBalance(account.getId(), amount);
+        if (updatedRows == 0) {
+            throw new InsufficientFundsException(
+                    String.format("Insufficient funds for transaction. Account ID: %d, Requested amount: %s",
+                            account.getId(), amount));
+        }
 
         var transaction = Transaction.builder()
                 .account(account)

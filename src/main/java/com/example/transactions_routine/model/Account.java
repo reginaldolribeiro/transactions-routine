@@ -3,6 +3,7 @@ package com.example.transactions_routine.model;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -24,6 +25,9 @@ public class Account {
     @Column(nullable = false, name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal balance = BigDecimal.ZERO;
+
     // Package-private constructor for Hibernate/JPA
     Account() {
     }
@@ -34,6 +38,7 @@ public class Account {
         this.documentNumber = builder.documentNumber;
         this.createdAt = builder.createdAt;
         this.updatedAt = builder.updatedAt;
+        this.balance = builder.balance == null ? BigDecimal.ZERO : builder.balance;
     }
 
     public static Builder builder() {
@@ -68,6 +73,10 @@ public class Account {
         return updatedAt;
     }
 
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -86,6 +95,7 @@ public class Account {
         private String documentNumber;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
+        private BigDecimal balance;
 
         private Builder() {
         }
@@ -107,6 +117,11 @@ public class Account {
 
         public Builder updatedAt(LocalDateTime updatedAt) {
             this.updatedAt = updatedAt;
+            return this;
+        }
+
+        public Builder balance(BigDecimal balance) {
+            this.balance = balance;
             return this;
         }
 

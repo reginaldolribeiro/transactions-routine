@@ -122,5 +122,6 @@ public interface AccountApiDocs {
                     example = "1",
                     required = true
             ) @PathVariable Long id);
+
 }
 
